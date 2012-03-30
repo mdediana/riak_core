@@ -21,6 +21,7 @@
              riak_core_bucket,
              riak_core_cinfo_core,
              riak_core_claim,
+             riak_core_claim_2_dcs,
              riak_core_new_claim,
              riak_core_config,
              riak_core_console,
