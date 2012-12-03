@@ -80,25 +80,15 @@ get_apl_ann(DocIdx, N, Ring, UpNodes) ->
     {Up, Pangs} = check_up(Primaries, UpNodes1, [], []),
     Up ++ find_fallbacks(Pangs, Fallbacks, UpNodes1, []).
 
-%% Get the active preflist ordered by data center locality
+%% Get the active preflist ordered by data center
 %% taking account of which nodes are up
 %% for a given ring/upnodes list and annotate each node with type of
-%% primary/fallback
+%% primary/fallback.
+%% Expects nodes named as 'dc1-<anything>@<host>'
 -spec get_apl_ann_dc(binary(), n_val(), ring(), [node()]) -> preflist2().
 get_apl_ann_dc(DocIdx, N, Ring, UpNodes) ->
-    case app_helper:get_env(riak_core, data_center) of
-        undefined -> get_apl_ann(DocIdx, N, Ring, UpNodes);
-        DC -> get_apl_ann_dc(DocIdx, N, Ring, UpNodes, DC)
-    end.
-
-%% Get the active preflist ordered by data center locality
-%% taking account of which nodes are up
-%% for a given ring/upnodes list and annotate each node with type of
-%% primary/fallback
-%% @private
--spec get_apl_ann_dc(binary(), n_val(), ring(), [node()], list()) -> preflist2().
-get_apl_ann_dc(DocIdx, N, Ring, UpNodes, DC) ->
     Preflist = get_apl_ann(DocIdx, N, Ring, UpNodes),
+    DC = hd(string:tokens(atom_to_list(node()), "-")),
     {PL1, PL2} = lists:partition(
             fun({{_Idx, Node}, _Type}) ->
                 lists:prefix(DC, atom_to_list(Node))
